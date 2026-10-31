@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block main %}
+<div class="home">
+  <section class="home__intro">
+    <h1 class="home__headline">Let the room ask.</h1>
+    <p class="home__lede">“Any questions?” usually meets silence, then the loudest voice. Quorum lets everyone ask from their phone, vote on what they want answered, and see the best questions rise, live.</p>
+
+    <form class="panel" method="post" action="{{ url_for('create_event') }}">
+      <h2>Host a session</h2>
+      <label for="title">Session name</label>
+      <input id="title" name="title" maxlength="100" required placeholder="Friday all-hands" value="{{ title or '' }}"
+             {% if create_error %}aria-invalid="true" aria-describedby="title-error"{% endif %}>
+      {% if create_error %}<p id="title-error" class="error">{{ create_error }}</p>{% endif %}
+      <button class="button" type="submit">Create session</button>
+    </form>
+
+    <form class="panel panel--quiet" method="get" action="{{ url_for('join') }}">
+      <h2>Join one</h2>
+      <label for="code">Code on the screen</label>
+      <div class="inline-field">
+        <input id="code" name="code" required autocomplete="off" autocapitalize="characters" spellcheck="false"
+               placeholder="K7P-4QZ" value="{{ code or '' }}" class="code-input"
+               {% if join_error %}aria-invalid="true" aria-describedby="code-error"{% endif %}>
+        <button class="button button--secondary" type="submit">Join</button>
+      </div>
+      {% if join_error %}<p id="code-error" class="error">{{ join_error }}</p>{% endif %}
+    </form>
+  </section>
+
+  <figure class="home__example" aria-label="Example questions">
+    <div class="stack">
+      <article class="card card--example">
+        <p class="card__text">How do you test database migrations before they reach production?</p>
+        <p class="card__meta">Aroha, 4 min ago</p>
+        <span class="vote__button" aria-hidden="true" data-pressed><svg class="vote__icon" viewBox="0 0 16 16"><path d="M8 3 14 11H2z"/></svg><span class="vote__count">24</span></span>
+      </article>
+      <article class="card card--example">
+        <p class="card__text">What would you do differently if you started again?</p>
+        <p class="card__meta">Anonymous, 6 min ago</p>
+        <span class="vote__button" aria-hidden="true"><svg class="vote__icon" viewBox="0 0 16 16"><path d="M8 3 14 11H2z"/></svg><span class="vote__count">17</span></span>
+      </article>
+      <article class="card card--example">
+        <p class="card__text">Is the recording going to be shared afterwards?</p>
+        <p class="card__meta">Sam, just now</p>
+        <span class="vote__button" aria-hidden="true"><svg class="vote__icon" viewBox="0 0 16 16"><path d="M8 3 14 11H2z"/></svg><span class="vote__count">3</span></span>
+      </article>
+    </div>
+    <figcaption>New questions start near the top, so the first ones asked don’t win by default.</figcaption>
+  </figure>
+</div>
+{% endblock %}

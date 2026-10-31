@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Lint, typecheck, test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: quorum
+          POSTGRES_PASSWORD: quorum
+          POSTGRES_DB: quorum_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U quorum -d quorum_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      QUORUM_TEST_DATABASE_URL: postgresql://quorum:quorum@localhost:5432/quorum_test
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+      - run: uv run ruff format --check
+      - run: uv run ruff check
+      - run: uv run mypy src tests
+      - run: uv run pytest --cov --cov-report=term-missing --cov-fail-under=85
+
+  container:
+    name: Container smoke test
+    needs: test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - name: Start the stack and wait until healthy
+        run: docker compose up --detach --build --wait
+      - name: The app is healthy and serves pages
+        run: |
+          curl --fail --silent http://localhost:8000/healthz
+          curl --fail --silent http://localhost:8000/ | grep -q "Let the room ask."
+      - name: Show logs
+        if: always()
+        run: docker compose logs app
+      - name: Stop
+        if: always()
+        run: docker compose down --volumes

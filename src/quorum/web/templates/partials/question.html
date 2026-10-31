@@ -1,0 +1,29 @@
+<article class="card card--{{ q.status }}" id="q-{{ q.id }}">
+  <p class="card__text">{{ q.text }}</p>
+  <p class="card__meta">{{ q.author_name or 'Anonymous' }}, {{ q.created_at|ago }}{% if q.mine %} <span class="card__mine">(you)</span>{% endif %}</p>
+  {% if q.status != 'hidden' %}
+  <form class="vote" method="post" action="{{ url_for('vote', code=event.code, question_id=q.id) }}"
+        hx-post="{{ url_for('vote', code=event.code, question_id=q.id) }}" hx-target="#board" hx-swap="outerHTML">
+    <input type="hidden" name="sort" value="{{ sort }}"><input type="hidden" name="view" value="{{ view }}">
+    <button type="submit" class="vote__button" aria-pressed="{{ 'true' if q.voted else 'false' }}"
+            aria-label="Upvote, {{ q.votes }} vote{{ '' if q.votes == 1 else 's' }}">
+      <svg class="vote__icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3 14 11H2z"/></svg>
+      <span class="vote__count">{{ q.votes }}</span>
+    </button>
+  </form>
+  {% endif %}
+  {% if view == 'host' %}
+  <form class="moderate" method="post" action="{{ url_for('moderate', code=event.code, question_id=q.id) }}"
+        hx-post="{{ url_for('moderate', code=event.code, question_id=q.id) }}" hx-target="#board" hx-swap="outerHTML">
+    <input type="hidden" name="sort" value="{{ sort }}">
+    {% if q.status == 'open' %}<button class="button button--small" name="action" value="answer">Answer now</button>{% endif %}
+    {% if q.status == 'answering' %}<button class="button button--small" name="action" value="answered">Done</button>{% endif %}
+    {% if q.status == 'answered' %}<button class="button button--small button--secondary" name="action" value="reopen">Reopen</button>{% endif %}
+    {% if q.status == 'hidden' %}
+    <button class="button button--small button--secondary" name="action" value="unhide">Show again</button>
+    {% else %}
+    <button class="button button--small button--quiet" name="action" value="hide">Hide</button>
+    {% endif %}
+  </form>
+  {% endif %}
+</article>

@@ -1,0 +1,34 @@
+# Everything at once: docker compose up --build   then open http://localhost:8000
+name: quorum
+
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: quorum
+      POSTGRES_PASSWORD: quorum
+      POSTGRES_DB: quorum
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quorum -d quorum"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build: .
+    environment:
+      QUORUM_DATABASE_URL: postgresql://quorum:quorum@db:5432/quorum
+      # Development value only. In production, inject a secret from your platform.
+      QUORUM_SECRET_KEY: local-development-secret-key-not-for-production-use
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db-data:

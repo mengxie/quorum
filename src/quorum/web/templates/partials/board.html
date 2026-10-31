@@ -1,0 +1,41 @@
+{%- set board_url = url_for('board', code=event.code).include_query_params(sort=sort, view=view) -%}
+<section id="board" class="board" hx-get="{{ board_url }}" hx-trigger="sse:changed" hx-swap="outerHTML" aria-labelledby="board-heading">
+  {% if board.answering %}
+  <div class="now">
+    <h2 class="now__label">Now answering</h2>
+    {% with q = board.answering %}{% include "partials/question.html" %}{% endwith %}
+  </div>
+  {% endif %}
+
+  <div class="board__head">
+    <h2 id="board-heading">Questions <span class="count">{{ board.open|length }}</span></h2>
+    <nav class="tabs" aria-label="Order questions by">
+      {% for value, label in [('popular', 'Popular'), ('newest', 'Newest')] %}
+      <a href="?sort={{ value }}" hx-get="{{ url_for('board', code=event.code).include_query_params(sort=value, view=view) }}"
+         hx-target="#board" hx-swap="outerHTML" {% if sort == value %}aria-current="true"{% endif %}>{{ label }}</a>
+      {% endfor %}
+    </nav>
+  </div>
+
+  {% if board.open %}
+  <ol class="questions">
+    {% for q in board.open %}<li>{% include "partials/question.html" %}</li>{% endfor %}
+  </ol>
+  {% else %}
+  <p class="empty">No questions yet. {% if view == 'host' %}Share the code to get the room asking.{% else %}Be the first to ask.{% endif %}</p>
+  {% endif %}
+
+  {% if board.answered %}
+  <details class="drawer">
+    <summary>Answered <span class="count">{{ board.answered|length }}</span></summary>
+    <ol class="questions">{% for q in board.answered %}<li>{% include "partials/question.html" %}</li>{% endfor %}</ol>
+  </details>
+  {% endif %}
+
+  {% if view == 'host' and board.hidden %}
+  <details class="drawer">
+    <summary>Hidden from the room <span class="count">{{ board.hidden|length }}</span></summary>
+    <ol class="questions">{% for q in board.hidden %}<li>{% include "partials/question.html" %}</li>{% endfor %}</ol>
+  </details>
+  {% endif %}
+</section>

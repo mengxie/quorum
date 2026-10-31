@@ -1,0 +1,19 @@
+{% if matches %}
+<div class="similar">
+  <p class="similar__lead">Already asked? Upvote it instead:</p>
+  <ul class="similar__list">
+    {% for q in matches %}
+    <li>
+      <span class="similar__text">{{ q.text }}</span>
+      <form method="post" action="{{ url_for('vote', code=event.code, question_id=q.id) }}"
+            hx-post="{{ url_for('vote', code=event.code, question_id=q.id) }}" hx-target="#board" hx-swap="outerHTML">
+        <input type="hidden" name="sort" value="{{ sort }}"><input type="hidden" name="view" value="{{ view }}">
+        <button type="submit" class="button button--small button--secondary" aria-pressed="{{ 'true' if q.voted else 'false' }}">
+          {{ 'Upvoted' if q.voted else 'Upvote' }}<span class="visually-hidden">: {{ q.text }}</span>
+        </button>
+      </form>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}

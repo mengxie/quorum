@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Live Q&amp;A for talks, meetups and all-hands. The room asks, votes, and the best questions rise.">
+  <meta name="htmx-config" content='{"includeIndicatorStyles": false, "allowEval": false, "allowScriptTags": false}'>
+  <title>{% block title %}Quorum: let the room ask{% endblock %}</title>
+  <link rel="icon" href="{{ url_for('static', path='favicon.svg') }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ url_for('static', path='app.css') }}?v={{ version }}">
+  <script src="{{ url_for('static', path='htmx.min.js') }}?v={{ version }}" defer></script>
+  <script src="{{ url_for('static', path='htmx-sse.min.js') }}?v={{ version }}" defer></script>
+  <script src="{{ url_for('static', path='app.js') }}?v={{ version }}" defer></script>
+</head>
+<body class="{% block body_class %}{% endblock %}">
+{% block body %}
+  <header class="masthead">
+    <a class="wordmark" href="{{ url_for('home') }}" aria-label="Quorum home">
+      <svg class="wordmark__mark" viewBox="0 0 24 20" aria-hidden="true"><rect x="0" y="8" width="5" height="12" rx="2.5"/><rect x="7.5" y="0" width="5" height="20" rx="2.5" class="lead"/><rect x="15" y="5" width="5" height="15" rx="2.5"/></svg>
+      Quorum
+    </a>
+    {% block masthead %}{% endblock %}
+  </header>
+  <main class="page">{% block main %}{% endblock %}</main>
+  <footer class="footer">
+    <p>Quorum keeps no accounts. Questions are anonymous unless you add a name.</p>
+  </footer>
+{% endblock %}
+</body>
+</html>

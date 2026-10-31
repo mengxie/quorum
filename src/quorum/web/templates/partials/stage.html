@@ -1,0 +1,17 @@
+{%- set top = board.open[0] if board.open else None -%}
+<section id="stage" class="stage__main" hx-get="{{ url_for('present_stage', code=event.code) }}"
+         hx-trigger="sse:changed" hx-swap="outerHTML" aria-live="polite">
+  <p class="stage__title">{{ event.title }}</p>
+  {% if board.answering %}
+  <p class="stage__label">Now answering</p>
+  <blockquote class="stage__question">{{ board.answering.text }}</blockquote>
+  <p class="stage__byline">{{ board.answering.author_name or 'Anonymous' }}, {{ board.answering.votes }} vote{{ '' if board.answering.votes == 1 else 's' }}</p>
+  {% elif top %}
+  <p class="stage__label">Top question</p>
+  <blockquote class="stage__question">{{ top.text }}</blockquote>
+  <p class="stage__byline">{{ top.author_name or 'Anonymous' }}, {{ top.votes }} vote{{ '' if top.votes == 1 else 's' }}</p>
+  {% else %}
+  <p class="stage__label">Questions</p>
+  <p class="stage__question">Scan the code and ask the first one.</p>
+  {% endif %}
+</section>

@@ -1,0 +1,22 @@
+<form id="ask" class="panel ask" method="post" action="{{ url_for('ask', code=event.code) }}"
+      hx-post="{{ url_for('ask', code=event.code) }}" hx-target="this" hx-swap="outerHTML">
+  <h2>Ask a question</h2>
+  {% if not event.is_open %}
+  <p class="notice">The host has closed questions for now.</p>
+  {% else %}
+  <label for="ask-text">Your question</label>
+  <textarea id="ask-text" name="text" rows="4" maxlength="280" required data-counter="ask-count"
+            hx-get="{{ url_for('similar', code=event.code) }}" hx-trigger="input changed delay:400ms"
+            hx-target="#similar" hx-swap="innerHTML"
+            aria-describedby="ask-count{% if error %} ask-error{% endif %}"
+            {% if error and error.field == 'text' %}aria-invalid="true"{% endif %}>{{ text or '' }}</textarea>
+  <p id="ask-count" class="hint">Up to 280 characters.</p>
+  <div id="similar" aria-live="polite"></div>
+  <label for="ask-name">Your name <span class="hint">(optional)</span></label>
+  <input id="ask-name" name="author_name" maxlength="40" autocomplete="nickname" value="{{ author_name or '' }}"
+         {% if error and error.field == 'author_name' %}aria-invalid="true"{% endif %}>
+  {% if error %}<p id="ask-error" class="error" role="alert">{{ error }}</p>{% endif %}
+  {% if sent %}<p class="sent" role="status">Sent. It’s on the board now.</p>{% endif %}
+  <button class="button" type="submit">Ask</button>
+  {% endif %}
+</form>

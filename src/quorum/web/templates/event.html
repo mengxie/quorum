@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ event.title }} | Quorum{% endblock %}
+{% block masthead %}<p class="code-chip">Code <strong>{{ event.code|code }}</strong></p>{% endblock %}
+{% block main %}
+<div class="event" hx-ext="sse" sse-connect="{{ url_for('stream', code=event.code) }}">
+  <h1 class="event__title">{{ event.title }}</h1>
+  <aside class="event__ask">{% include "partials/ask_form.html" %}</aside>
+  {% include "partials/board.html" %}
+</div>
+{% endblock %}
