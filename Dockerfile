@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ---- Build a virtual environment with only the runtime dependencies
-FROM python:3.12-slim AS build
+FROM python:3.15-slim AS build
 COPY --from=ghcr.io/astral-sh/uv:0.11.7 /uv /bin/uv
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy UV_PYTHON_DOWNLOADS=never
 WORKDIR /app
@@ -12,7 +12,7 @@ COPY src ./src
 RUN uv sync --locked --no-dev --no-editable
 
 # ---- Runtime: the virtual environment and nothing else, as a non-root user
-FROM python:3.12-slim AS runtime
+FROM python:3.15-slim AS runtime
 RUN useradd --create-home --uid 10001 quorum
 COPY --from=build /app/.venv /app/.venv
 ENV PATH="/app/.venv/bin:$PATH" PYTHONUNBUFFERED=1
